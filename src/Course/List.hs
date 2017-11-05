@@ -75,8 +75,10 @@ headOr ::
   a
   -> List a
   -> a
-headOr =
-  error "todo: Course.List#headOr"
+headOr def xs =
+  case xs of
+    h :. _ -> h
+    Nil -> def
 
 -- | The product of the elements of a list.
 --
@@ -92,7 +94,7 @@ product ::
   List Int
   -> Int
 product =
-  error "todo: Course.List#product"
+  foldRight (*) 1
 
 -- | Sum the elements of the list.
 --
@@ -107,7 +109,7 @@ sum ::
   List Int
   -> Int
 sum =
-  error "todo: Course.List#sum"
+  foldRight (+) 0
 
 -- | Return the length of the list.
 --
@@ -119,7 +121,7 @@ length ::
   List a
   -> Int
 length =
-  error "todo: Course.List#length"
+  sum . map (\_ -> 1)
 
 -- | Map the given function on each element of the list.
 --
@@ -133,8 +135,8 @@ map ::
   (a -> b)
   -> List a
   -> List b
-map =
-  error "todo: Course.List#map"
+map f =
+  foldRight (\x s -> (f x) :. s) Nil
 
 -- | Return elements satisfying the given predicate.
 --
@@ -150,8 +152,8 @@ filter ::
   (a -> Bool)
   -> List a
   -> List a
-filter =
-  error "todo: Course.List#filter"
+filter p =
+  foldRight (\x s -> if p x then x :. s else s) Nil
 
 -- | Append two lists to a new list.
 --
@@ -169,8 +171,8 @@ filter =
   List a
   -> List a
   -> List a
-(++) =
-  error "todo: Course.List#(++)"
+(++) xs ys =
+  foldRight (:.) ys xs
 
 infixr 5 ++
 
@@ -188,7 +190,7 @@ flatten ::
   List (List a)
   -> List a
 flatten =
-  error "todo: Course.List#flatten"
+  foldRight (++) Nil
 
 -- | Map a function then flatten to a list.
 --
@@ -204,9 +206,9 @@ flatMap ::
   (a -> List b)
   -> List a
   -> List b
-flatMap =
-  error "todo: Course.List#flatMap"
-
+flatMap f =
+  flatten . map f
+  
 -- | Flatten a list of lists to a list (again).
 -- HOWEVER, this time use the /flatMap/ function that you just wrote.
 --
@@ -215,7 +217,7 @@ flattenAgain ::
   List (List a)
   -> List a
 flattenAgain =
-  error "todo: Course.List#flattenAgain"
+  flatMap id
 
 -- | Convert a list of optional values to an optional list of values.
 --
@@ -243,7 +245,9 @@ seqOptional ::
   List (Optional a)
   -> Optional (List a)
 seqOptional =
-  error "todo: Course.List#seqOptional"
+  foldRight
+  (\x s ->  (:.) P.<$> x P.<*> s)
+  (Full Nil)
 
 -- | Find the first element in the list matching the predicate.
 --
